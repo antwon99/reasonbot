@@ -63,7 +63,7 @@ pip install -r requirements.txt
 python bot.py
 ```
 
-See [docs/environment.md](docs/environment.md) for the environment variables that must be configured.
+See [docs/environment.md](docs/environment.md) for the environment variables that must be configured. A `.env.example` file is provided in the repo root—copy it to `.env` and fill in your credentials.
 
 To run tests:
 
@@ -80,7 +80,7 @@ black .
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and fill in the following keys:
+Copy the provided `.env.example` to `.env` and fill in the following keys:
 
 - `OPENAI_API_KEY` – OpenAI API key
 - `TWITTER_BEARER_TOKEN` – bearer token used to read mentions
