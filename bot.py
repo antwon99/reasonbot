@@ -11,7 +11,6 @@ Primary functions:
 
 from __future__ import annotations
 
-import os
 from typing import List
 from pathlib import Path
 
@@ -20,6 +19,12 @@ import replier
 
 import tweepy
 from dotenv import load_dotenv
+from utils import (
+    get_env_var,
+    is_rate_limited,
+    load_processed_ids,
+    save_processed_id,
+)
 
 # Local cache of tweets we've replied to
 PROCESSED_FILE = Path("processed_ids.txt")
@@ -42,8 +47,8 @@ def check_mentions(count: int = 5) -> List[tweepy.tweet.Tweet]:
     # Load environment variables from a .env file for local development
     load_dotenv()
 
-    bearer_token = os.getenv("TWITTER_BEARER_TOKEN")
-    user_id = os.getenv("TWITTER_USER_ID")
+    bearer_token = get_env_var("TWITTER_BEARER_TOKEN")
+    user_id = get_env_var("TWITTER_USER_ID")
 
     if not bearer_token or not user_id:
         print(
@@ -65,7 +70,7 @@ def check_mentions(count: int = 5) -> List[tweepy.tweet.Tweet]:
     return tweets
 
 
-def dispatch(count: int = 5) -> None:
+def dispatch(count: int = 5, cooldown: int | None = None) -> None:
     """Process new mentions and post replies.
 
     This high-level dispatcher wires together the analyzer and replier modules.
@@ -76,18 +81,17 @@ def dispatch(count: int = 5) -> None:
     ----------
     count:
         Number of @mentions to fetch and potentially reply to.
+    cooldown:
+        If provided, minimum seconds between successful dispatch runs.
     """
 
     load_dotenv()
 
-    # Read previously processed tweet IDs from cache
-    processed: set[str] = set()
-    if PROCESSED_FILE.exists():
-        processed = {
-            line.strip()
-            for line in PROCESSED_FILE.read_text().splitlines()
-            if line.strip()
-        }
+    if cooldown and is_rate_limited(PROCESSED_FILE.with_suffix(".lock"), cooldown):
+        print("Cooldown active. Skipping dispatch.")
+        return
+
+    processed = load_processed_ids(PROCESSED_FILE)
 
     tweets = check_mentions(count)
 
@@ -96,11 +100,11 @@ def dispatch(count: int = 5) -> None:
 
     # Collect credentials required for posting a reply
     creds = {
-        "bearer_token": os.getenv("TWITTER_BEARER_TOKEN"),
-        "consumer_key": os.getenv("TWITTER_API_KEY"),
-        "consumer_secret": os.getenv("TWITTER_API_SECRET"),
-        "access_token": os.getenv("TWITTER_ACCESS_TOKEN"),
-        "access_token_secret": os.getenv("TWITTER_ACCESS_SECRET"),
+        "bearer_token": get_env_var("TWITTER_BEARER_TOKEN"),
+        "consumer_key": get_env_var("TWITTER_API_KEY"),
+        "consumer_secret": get_env_var("TWITTER_API_SECRET"),
+        "access_token": get_env_var("TWITTER_ACCESS_TOKEN"),
+        "access_token_secret": get_env_var("TWITTER_ACCESS_SECRET"),
     }
 
     if not all(creds.values()):
@@ -118,10 +122,9 @@ def dispatch(count: int = 5) -> None:
             reply_text = replier.generate_reply(context, tweet.text)
             client.create_tweet(text=reply_text, in_reply_to_tweet_id=tweet.id)
             processed.add(str(tweet.id))
+            save_processed_id(PROCESSED_FILE, str(tweet.id))
         except Exception as exc:  # keep loop going even if one tweet fails
             print(f"Error replying to {tweet.id}: {exc}")
-
-    PROCESSED_FILE.write_text("\n".join(processed))
 
 
 if __name__ == "__main__":
