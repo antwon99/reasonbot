@@ -59,11 +59,12 @@ All packages are listed in `requirements.txt`.
 ## Local Setup
 
 ```bash
+cp .env.example .env
 pip install -r requirements.txt
 python bot.py
 ```
 
-See [docs/environment.md](docs/environment.md) for the environment variables that must be configured. A `.env.example` file is provided in the repo root—copy it to `.env` and fill in your credentials.
+See [docs/environment.md](docs/environment.md) for all required environment variables. The `.env.example` file in the repo root lists each key—copy it to `.env` and add your credentials.
 
 To run tests:
 
