@@ -18,8 +18,8 @@ import analyzer
 import replier
 
 import tweepy
-from dotenv import load_dotenv
 from utils import (
+    load_env,
     get_env_var,
     is_rate_limited,
     load_processed_ids,
@@ -44,8 +44,8 @@ def check_mentions(count: int = 5) -> List[tweepy.tweet.Tweet]:
         The Tweet objects returned by the Twitter API.
     """
 
-    # Load environment variables from a .env file for local development
-    load_dotenv()
+    # Ensure environment variables are loaded
+    load_env()
 
     bearer_token = get_env_var("TWITTER_BEARER_TOKEN")
     user_id = get_env_var("TWITTER_USER_ID")
@@ -85,7 +85,8 @@ def dispatch(count: int = 5, cooldown: int | None = None) -> None:
         If provided, minimum seconds between successful dispatch runs.
     """
 
-    load_dotenv()
+    # Ensure environment variables are loaded
+    load_env()
 
     if cooldown and is_rate_limited(PROCESSED_FILE.with_suffix(".lock"), cooldown):
         print("Cooldown active. Skipping dispatch.")

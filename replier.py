@@ -12,7 +12,7 @@ from __future__ import annotations
 import os
 from typing import Any, Dict
 
-from dotenv import load_dotenv
+from utils import load_env
 import openai
 import backoff
 
@@ -95,7 +95,8 @@ def generate_reply(context_data: Dict[str, Any], tweet_text: str) -> str:
         if the API is unavailable.
     """
 
-    load_dotenv()
+    # Ensure environment variables are loaded before accessing them
+    load_env()
     api_key = os.getenv("OPENAI_API_KEY")
 
     if not api_key:

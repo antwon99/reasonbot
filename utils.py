@@ -11,12 +11,26 @@ import time
 from pathlib import Path
 from typing import Set
 
+from dotenv import load_dotenv
+
 __all__ = [
+    "load_env",
     "get_env_var",
     "is_rate_limited",
     "load_processed_ids",
     "save_processed_id",
 ]
+
+_ENV_LOADED = False
+
+
+def load_env() -> None:
+    """Load environment variables from a ``.env`` file once."""
+
+    global _ENV_LOADED
+    if not _ENV_LOADED:
+        load_dotenv()
+        _ENV_LOADED = True
 
 
 def get_env_var(name: str, default: str | None = None) -> str | None:
