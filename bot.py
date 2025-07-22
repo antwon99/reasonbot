@@ -18,12 +18,12 @@ import analyzer
 import replier
 
 import tweepy
+import utils
+
 from utils import (
     load_env,
     get_env_var,
     is_rate_limited,
-    load_processed_ids,
-    save_processed_id,
 )
 
 # Local cache of tweets we've replied to
@@ -92,7 +92,7 @@ def dispatch(count: int = 5, cooldown: int | None = None) -> None:
         print("Cooldown active. Skipping dispatch.")
         return
 
-    processed = load_processed_ids(PROCESSED_FILE)
+    processed = utils.load_processed_ids(PROCESSED_FILE)
 
     tweets = check_mentions(count)
 
@@ -101,11 +101,11 @@ def dispatch(count: int = 5, cooldown: int | None = None) -> None:
 
     # Collect credentials required for posting a reply
     creds = {
-        "bearer_token": get_env_var("TWITTER_BEARER_TOKEN"),
-        "consumer_key": get_env_var("TWITTER_API_KEY"),
-        "consumer_secret": get_env_var("TWITTER_API_SECRET"),
-        "access_token": get_env_var("TWITTER_ACCESS_TOKEN"),
-        "access_token_secret": get_env_var("TWITTER_ACCESS_SECRET"),
+        "bearer_token": utils.get_env_var("TWITTER_BEARER_TOKEN"),
+        "consumer_key": utils.get_env_var("TWITTER_API_KEY"),
+        "consumer_secret": utils.get_env_var("TWITTER_API_SECRET"),
+        "access_token": utils.get_env_var("TWITTER_ACCESS_TOKEN"),
+        "access_token_secret": utils.get_env_var("TWITTER_ACCESS_SECRET"),
     }
 
     if not all(creds.values()):
@@ -123,7 +123,7 @@ def dispatch(count: int = 5, cooldown: int | None = None) -> None:
             reply_text = replier.generate_reply(context, tweet.text)
             client.create_tweet(text=reply_text, in_reply_to_tweet_id=tweet.id)
             processed.add(str(tweet.id))
-            save_processed_id(PROCESSED_FILE, str(tweet.id))
+            utils.save_processed_id(PROCESSED_FILE, str(tweet.id))
         except Exception as exc:  # keep loop going even if one tweet fails
             print(f"Error replying to {tweet.id}: {exc}")
 
