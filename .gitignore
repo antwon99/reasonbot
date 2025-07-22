@@ -3,3 +3,8 @@ __pycache__/
 .pytest_cache/
 .env
 processed_ids.txt
+# Virtual environment folders
+venv/
+env/
+.venv/
+ENV/
