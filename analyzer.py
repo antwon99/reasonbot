@@ -15,6 +15,18 @@ import json
 
 from dotenv import load_dotenv
 import openai
+import backoff
+
+
+@backoff.on_exception(backoff.expo, openai.OpenAIError, max_tries=3)
+def _chat_completion(client: openai.OpenAI, prompt: str):
+    """Call the OpenAI chat completion API with retries."""
+
+    return client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0,
+    )
 
 
 def analyze_context(tweet_text: str) -> Dict[str, Any]:
@@ -65,11 +77,7 @@ def analyze_context(tweet_text: str) -> Dict[str, Any]:
             f"{tweet_text}"
         )
 
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0,
-        )
+        response = _chat_completion(client, prompt)
 
         # The API returns a list of choices; we take the first message content.
         content = response.choices[0].message.content

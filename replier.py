@@ -14,6 +14,24 @@ from typing import Any, Dict
 
 from dotenv import load_dotenv
 import openai
+import backoff
+
+
+@backoff.on_exception(backoff.expo, openai.OpenAIError, max_tries=3)
+def _chat_completion(client: openai.OpenAI, prompt: str):
+    """Call the OpenAI chat completion API with retries."""
+
+    return client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are ReasonBot, a calm and strategic debater.",
+            },
+            {"role": "user", "content": prompt},
+        ],
+        temperature=0.7,
+    )
 
 
 def _build_prompt(context: Dict[str, Any], tweet_text: str) -> str:
@@ -90,17 +108,7 @@ def generate_reply(context_data: Dict[str, Any], tweet_text: str) -> str:
         client = openai.OpenAI(api_key=api_key)
         prompt = _build_prompt(context_data, tweet_text)
 
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are ReasonBot, a calm and strategic debater.",
-                },
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.7,
-        )
+        response = _chat_completion(client, prompt)
 
         return response.choices[0].message.content.strip()
 
