@@ -61,3 +61,19 @@ def test_build_prompt_aggressive_tone():
 
     assert "Respond in a sarcastic tone" in prompt
     assert "defuse the tension" in prompt
+
+
+def test_generate_reply_openai_error():
+    """Exceptions from openai.OpenAI should return the fallback reply."""
+    context = {"reply_tone": "calm"}
+
+    with patch("utils.load_env"), patch.dict(
+        os.environ,
+        {"OPENAI_API_KEY": "k"},
+    ), patch(
+        "replier.openai.OpenAI",
+        side_effect=replier.openai.OpenAIError("boom"),
+    ):
+        reply = replier.generate_reply(context, "hi")
+
+    assert reply == "ReasonBot encountered an error and cannot reply."
