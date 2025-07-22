@@ -56,7 +56,12 @@ def test_dispatch_posts_replies(tmp_path):
         "bot.tweepy.Client"
     ) as MockClient, patch(
         "utils.load_env"
-    ), patch.dict(
+    ), patch(
+        "bot.load_processed_ids",
+        side_effect=[set(), {"1"}],
+    ) as load_ids, patch(
+        "bot.save_processed_id"
+    ) as save_id, patch.dict(
         os.environ,
         {
             "TWITTER_BEARER_TOKEN": "token",
@@ -73,11 +78,12 @@ def test_dispatch_posts_replies(tmp_path):
         client_instance.create_tweet.assert_called_once_with(
             text="ok", in_reply_to_tweet_id=1
         )
-        assert cache_file.read_text().strip() == "1"
+        save_id.assert_called_once_with(cache_file, "1")
 
         client_instance.create_tweet.reset_mock()
         bot.dispatch(1)
         client_instance.create_tweet.assert_not_called()
+        assert load_ids.call_count == 2
 
 
 def test_dispatch_respects_cooldown(tmp_path):
