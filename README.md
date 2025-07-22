@@ -29,7 +29,7 @@ Because the internet doesn’t need another screeching reply guy or smug fact-ch
 
 ## Repo Structure
 
-- `bot.py` – Listens for mentions and coordinates response pipeline
+- `bot.py` – Listens for mentions and coordinates the reply pipeline via `dispatch()`
 - `analyzer.py` – Handles LLM calls and context interpretation
 - `replier.py` – Crafts replies based on logic trees and prompt templates
 - `utils.py` – Rate-limiting, caching, helpers
