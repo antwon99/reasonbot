@@ -1,5 +1,4 @@
 import json
-import os
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -23,8 +22,8 @@ def test_analyze_context_parses_json():
         "reply_tone": "calm",
     }
 
-    with patch("utils.load_env"), patch.dict(
-        os.environ, {"OPENAI_API_KEY": "k"}
+    with patch("utils.load_env"), patch(
+        "analyzer.get_env_var", return_value="k"
     ), patch("analyzer.openai.OpenAI") as MockClient:
         instance = MockClient.return_value
         chat = instance.chat.completions
@@ -40,8 +39,8 @@ def test_analyze_context_parses_json():
 
 def test_analyze_context_invalid_json():
     """Invalid JSON should trigger fallback analysis with slur detection."""
-    with patch("utils.load_env"), patch.dict(
-        os.environ, {"OPENAI_API_KEY": "k"}
+    with patch("utils.load_env"), patch(
+        "analyzer.get_env_var", return_value="k"
     ), patch("analyzer.openai.OpenAI") as MockClient:
         instance = MockClient.return_value
         chat = instance.chat.completions
@@ -58,9 +57,9 @@ def test_analyze_context_invalid_json():
 
 def test_analyze_context_no_api_key():
     """If OPENAI_API_KEY is missing the function should skip API calls."""
-    with patch("utils.load_env"), patch.dict(os.environ, {}, clear=True), patch(
-        "analyzer.openai.OpenAI"
-    ) as MockClient:
+    with patch("utils.load_env"), patch(
+        "analyzer.get_env_var", return_value=None
+    ), patch("analyzer.openai.OpenAI") as MockClient:
         result = analyzer.analyze_context("whatever")
         MockClient.assert_not_called()
 
@@ -71,9 +70,8 @@ def test_analyze_context_no_api_key():
 
 def test_analyze_context_openai_error():
     """Exceptions from openai.OpenAI should trigger the fallback analysis."""
-    with patch("utils.load_env"), patch.dict(
-        os.environ,
-        {"OPENAI_API_KEY": "k"},
+    with patch("utils.load_env"), patch(
+        "analyzer.get_env_var", return_value="k"
     ), patch(
         "analyzer.openai.OpenAI",
         side_effect=analyzer.openai.OpenAIError("boom"),

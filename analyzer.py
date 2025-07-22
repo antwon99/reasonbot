@@ -9,11 +9,10 @@ Primary function: analyze_context(tweet_text: str) -> dict
 
 from __future__ import annotations
 
-import os
 from typing import Any, Dict
 import json
 
-from utils import load_env
+from utils import load_env, get_env_var
 import openai
 import backoff
 
@@ -46,7 +45,7 @@ def analyze_context(tweet_text: str) -> Dict[str, Any]:
 
     # Pull credentials from the environment, loading them if necessary
     load_env()
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = get_env_var("OPENAI_API_KEY")
 
     if not api_key:
         print(

@@ -6,7 +6,6 @@ and trigger only under expected conditions.
 """
 
 from unittest.mock import MagicMock, patch
-import os
 import sys
 from pathlib import Path
 import openai
@@ -23,9 +22,12 @@ def test_check_mentions_outputs_text(capsys):
     mock_tweet = MagicMock(id=123, text="hello world")
     mock_response = MagicMock(data=[mock_tweet])
 
-    with patch("bot.tweepy.Client") as MockClient, patch("utils.load_env"), patch.dict(
-        os.environ,
-        {"TWITTER_BEARER_TOKEN": "token", "TWITTER_USER_ID": "1"},
+    with patch("bot.tweepy.Client") as MockClient, patch("utils.load_env"), patch(
+        "bot.get_env_var",
+        side_effect=lambda name: {
+            "TWITTER_BEARER_TOKEN": "token",
+            "TWITTER_USER_ID": "1",
+        }.get(name),
     ):
         instance = MockClient.return_value
         instance.get_users_mentions.return_value = mock_response
@@ -61,16 +63,16 @@ def test_dispatch_posts_replies(tmp_path):
         side_effect=[set(), {"1"}],
     ) as load_ids, patch(
         "utils.save_processed_id"
-    ) as save_id, patch.dict(
-        os.environ,
-        {
+    ) as save_id, patch(
+        "utils.get_env_var",
+        side_effect=lambda name: {
             "TWITTER_BEARER_TOKEN": "token",
             "TWITTER_USER_ID": "1",
             "TWITTER_API_KEY": "a",
             "TWITTER_API_SECRET": "b",
             "TWITTER_ACCESS_TOKEN": "c",
             "TWITTER_ACCESS_SECRET": "d",
-        },
+        }.get(name),
     ):
         client_instance = MockClient.return_value
 
@@ -95,16 +97,16 @@ def test_dispatch_respects_cooldown(tmp_path):
         "bot.is_rate_limited", return_value=True
     ) as mock_rate, patch("bot.check_mentions") as check, patch(
         "utils.load_env"
-    ), patch.dict(
-        os.environ,
-        {
+    ), patch(
+        "utils.get_env_var",
+        side_effect=lambda name: {
             "TWITTER_BEARER_TOKEN": "token",
             "TWITTER_USER_ID": "1",
             "TWITTER_API_KEY": "a",
             "TWITTER_API_SECRET": "b",
             "TWITTER_ACCESS_TOKEN": "c",
             "TWITTER_ACCESS_SECRET": "d",
-        },
+        }.get(name),
     ), patch(
         "bot.tweepy.Client"
     ) as MockClient:
@@ -124,14 +126,13 @@ def test_dispatch_missing_twitter_credentials(tmp_path):
         return_value=[mock_tweet],
     ), patch("utils.load_processed_ids", return_value=set()), patch(
         "utils.load_env"
-    ), patch.dict(
-        os.environ,
-        {
+    ), patch(
+        "utils.get_env_var",
+        side_effect=lambda name: {
             "TWITTER_BEARER_TOKEN": "token",
             "TWITTER_USER_ID": "1",
             # Missing posting keys
-        },
-        clear=True,
+        }.get(name),
     ), patch(
         "bot.tweepy.Client"
     ) as MockClient, patch(
@@ -162,16 +163,16 @@ def test_dispatch_handles_openai_error(tmp_path):
         "utils.save_processed_id"
     ) as save_id, patch(
         "utils.load_env"
-    ), patch.dict(
-        os.environ,
-        {
+    ), patch(
+        "utils.get_env_var",
+        side_effect=lambda name: {
             "TWITTER_BEARER_TOKEN": "token",
             "TWITTER_USER_ID": "1",
             "TWITTER_API_KEY": "a",
             "TWITTER_API_SECRET": "b",
             "TWITTER_ACCESS_TOKEN": "c",
             "TWITTER_ACCESS_SECRET": "d",
-        },
+        }.get(name),
     ), patch(
         "bot.tweepy.Client"
     ) as MockClient, patch(

@@ -1,4 +1,3 @@
-import os
 from unittest.mock import MagicMock, patch
 
 import replier
@@ -13,9 +12,9 @@ def test_generate_reply_calls_openai():
         "reply_tone": "calm",
     }
 
-    with patch("replier.openai.OpenAI") as MockClient, patch(
-        "utils.load_env"
-    ), patch.dict(os.environ, {"OPENAI_API_KEY": "key"}):
+    with patch("replier.openai.OpenAI") as MockClient, patch("utils.load_env"), patch(
+        "replier.get_env_var", return_value="key"
+    ):
         instance = MockClient.return_value
         chat = instance.chat.completions
         mock_choice = MagicMock()
@@ -30,7 +29,7 @@ def test_generate_reply_calls_openai():
 
 def test_generate_reply_no_key():
     context = {"reply_tone": "calm"}
-    with patch("utils.load_env"), patch.dict(os.environ, {}, clear=True):
+    with patch("utils.load_env"), patch("replier.get_env_var", return_value=None):
         reply = replier.generate_reply(context, "hi")
         assert "cannot respond" in reply.lower()
 
@@ -67,10 +66,7 @@ def test_generate_reply_openai_error():
     """Exceptions from openai.OpenAI should return the fallback reply."""
     context = {"reply_tone": "calm"}
 
-    with patch("utils.load_env"), patch.dict(
-        os.environ,
-        {"OPENAI_API_KEY": "k"},
-    ), patch(
+    with patch("utils.load_env"), patch("replier.get_env_var", return_value="k"), patch(
         "replier.openai.OpenAI",
         side_effect=replier.openai.OpenAIError("boom"),
     ):
