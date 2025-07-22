@@ -38,6 +38,24 @@ Because the internet doesn’t need another screeching reply guy or smug fact-ch
 
 ---
 
+## Dependencies
+
+This project relies on the following runtime libraries:
+
+- `tweepy`
+- `openai`
+- `python-dotenv`
+- `backoff`
+
+Development tools:
+- `pytest`
+- `flake8`
+- `black`
+
+All packages are listed in `requirements.txt`.
+
+---
+
 ## Local Setup
 
 ```bash
