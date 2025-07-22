@@ -77,3 +77,31 @@ def test_dispatch_posts_replies(tmp_path):
         client_instance.create_tweet.reset_mock()
         bot.dispatch(1)
         client_instance.create_tweet.assert_not_called()
+
+
+def test_dispatch_respects_cooldown(tmp_path):
+    """dispatch() should exit early when rate limited."""
+
+    cache_file = tmp_path / "ids.txt"
+
+    with patch("bot.PROCESSED_FILE", cache_file), patch(
+        "bot.is_rate_limited", return_value=True
+    ) as mock_rate, patch("bot.check_mentions") as check, patch(
+        "bot.load_dotenv"
+    ), patch.dict(
+        os.environ,
+        {
+            "TWITTER_BEARER_TOKEN": "token",
+            "TWITTER_USER_ID": "1",
+            "TWITTER_API_KEY": "a",
+            "TWITTER_API_SECRET": "b",
+            "TWITTER_ACCESS_TOKEN": "c",
+            "TWITTER_ACCESS_SECRET": "d",
+        },
+    ), patch(
+        "bot.tweepy.Client"
+    ) as MockClient:
+        bot.dispatch(1, cooldown=10)
+        mock_rate.assert_called_once()
+        check.assert_not_called()
+        MockClient.assert_not_called()
