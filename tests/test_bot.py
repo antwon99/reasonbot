@@ -13,7 +13,7 @@ from pathlib import Path
 # Ensure the project root is on the import path so `bot` can be imported during tests
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import bot
+import bot  # noqa: E402
 
 
 def test_check_mentions_outputs_text(capsys):
