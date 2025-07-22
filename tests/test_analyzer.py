@@ -67,3 +67,23 @@ def test_analyze_context_no_api_key():
     for key in EXPECTED_KEYS:
         assert key in result
     assert result["tone"] == "neutral"
+
+
+def test_analyze_context_openai_error():
+    """Exceptions from openai.OpenAI should trigger the fallback analysis."""
+    with patch("utils.load_env"), patch.dict(
+        os.environ,
+        {"OPENAI_API_KEY": "k"},
+    ), patch(
+        "analyzer.openai.OpenAI",
+        side_effect=analyzer.openai.OpenAIError("boom"),
+    ):
+        result = analyzer.analyze_context("whatever")
+
+    assert result == {
+        "tone": "neutral",
+        "ideology": "unknown",
+        "emotion": "neutral",
+        "contains_slur": False,
+        "reply_tone": "calm",
+    }
