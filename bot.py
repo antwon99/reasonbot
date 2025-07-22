@@ -24,6 +24,8 @@ from utils import (
     load_env,
     get_env_var,
     is_rate_limited,
+    load_processed_ids,
+    save_processed_id,
 )
 
 # Local cache of tweets we've replied to
@@ -92,7 +94,7 @@ def dispatch(count: int = 5, cooldown: int | None = None) -> None:
         print("Cooldown active. Skipping dispatch.")
         return
 
-    processed = utils.load_processed_ids(PROCESSED_FILE)
+    processed = load_processed_ids(PROCESSED_FILE)
 
     tweets = check_mentions(count)
 
@@ -123,7 +125,7 @@ def dispatch(count: int = 5, cooldown: int | None = None) -> None:
             reply_text = replier.generate_reply(context, tweet.text)
             client.create_tweet(text=reply_text, in_reply_to_tweet_id=tweet.id)
             processed.add(str(tweet.id))
-            utils.save_processed_id(PROCESSED_FILE, str(tweet.id))
+            save_processed_id(PROCESSED_FILE, str(tweet.id))
         except Exception as exc:  # keep loop going even if one tweet fails
             print(f"Error replying to {tweet.id}: {exc}")
 

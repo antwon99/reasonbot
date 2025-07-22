@@ -59,10 +59,10 @@ def test_dispatch_posts_replies(tmp_path):
     ) as MockClient, patch(
         "utils.load_env"
     ), patch(
-        "utils.load_processed_ids",
+        "bot.load_processed_ids",
         side_effect=[set(), {"1"}],
     ) as load_ids, patch(
-        "utils.save_processed_id"
+        "bot.save_processed_id"
     ) as save_id, patch(
         "utils.get_env_var",
         side_effect=lambda name: {
@@ -124,7 +124,7 @@ def test_dispatch_missing_twitter_credentials(tmp_path):
     with patch("bot.PROCESSED_FILE", cache_file), patch(
         "bot.check_mentions",
         return_value=[mock_tweet],
-    ), patch("utils.load_processed_ids", return_value=set()), patch(
+    ), patch("bot.load_processed_ids", return_value=set()), patch(
         "utils.load_env"
     ), patch(
         "utils.get_env_var",
@@ -157,10 +157,10 @@ def test_dispatch_handles_openai_error(tmp_path):
     ), patch(
         "bot.replier.generate_reply"
     ) as gen_reply, patch(
-        "utils.load_processed_ids",
+        "bot.load_processed_ids",
         return_value=set(),
     ), patch(
-        "utils.save_processed_id"
+        "bot.save_processed_id"
     ) as save_id, patch(
         "utils.load_env"
     ), patch(
