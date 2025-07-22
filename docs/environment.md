@@ -21,3 +21,9 @@ ReasonBot requires several API credentials to communicate with Twitter and OpenA
 - **`TWITTER_ACCESS_SECRET`** – OAuth access token secret.
 
 Keep this `.env` file out of version control and store your keys securely.
+
+## Accessing Variables in Code
+
+ReasonBot modules call `utils.load_env()` to load the `.env` file and then use
+`utils.get_env_var()` to retrieve values. This helper wraps `os.getenv` and
+provides a fallback default so the code doesn't crash if a variable is missing.

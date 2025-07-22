@@ -90,6 +90,9 @@ Copy the provided `.env.example` to `.env` and fill in the following keys:
 - `TWITTER_ACCESS_TOKEN` – OAuth access token
 - `TWITTER_ACCESS_SECRET` – OAuth access token secret
 
+The code loads the `.env` file via `utils.load_env()` and reads variables with
+`utils.get_env_var()`, which returns a default when a value is missing.
+
 ---
 
 ## Example Usage
