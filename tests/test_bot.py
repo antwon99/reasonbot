@@ -23,7 +23,7 @@ def test_check_mentions_outputs_text(capsys):
     mock_tweet = MagicMock(id=123, text="hello world")
     mock_response = MagicMock(data=[mock_tweet])
 
-    with patch("bot.tweepy.Client") as MockClient, patch("bot.load_dotenv"), patch.dict(
+    with patch("bot.tweepy.Client") as MockClient, patch("utils.load_env"), patch.dict(
         os.environ,
         {"TWITTER_BEARER_TOKEN": "token", "TWITTER_USER_ID": "1"},
     ):
@@ -55,7 +55,7 @@ def test_dispatch_posts_replies(tmp_path):
     ), patch(
         "bot.tweepy.Client"
     ) as MockClient, patch(
-        "bot.load_dotenv"
+        "utils.load_env"
     ), patch.dict(
         os.environ,
         {
@@ -88,7 +88,7 @@ def test_dispatch_respects_cooldown(tmp_path):
     with patch("bot.PROCESSED_FILE", cache_file), patch(
         "bot.is_rate_limited", return_value=True
     ) as mock_rate, patch("bot.check_mentions") as check, patch(
-        "bot.load_dotenv"
+        "utils.load_env"
     ), patch.dict(
         os.environ,
         {
@@ -117,7 +117,7 @@ def test_dispatch_missing_twitter_credentials(tmp_path):
         "bot.check_mentions",
         return_value=[mock_tweet],
     ), patch("bot.load_processed_ids", return_value=set()), patch(
-        "bot.load_dotenv"
+        "utils.load_env"
     ), patch.dict(
         os.environ,
         {
@@ -155,7 +155,7 @@ def test_dispatch_handles_openai_error(tmp_path):
     ), patch(
         "bot.save_processed_id"
     ) as save_id, patch(
-        "bot.load_dotenv"
+        "utils.load_env"
     ), patch.dict(
         os.environ,
         {

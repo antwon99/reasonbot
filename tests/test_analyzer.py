@@ -23,7 +23,7 @@ def test_analyze_context_parses_json():
         "reply_tone": "calm",
     }
 
-    with patch("analyzer.load_dotenv"), patch.dict(
+    with patch("utils.load_env"), patch.dict(
         os.environ, {"OPENAI_API_KEY": "k"}
     ), patch("analyzer.openai.OpenAI") as MockClient:
         instance = MockClient.return_value
@@ -40,7 +40,7 @@ def test_analyze_context_parses_json():
 
 def test_analyze_context_invalid_json():
     """Invalid JSON should trigger fallback analysis with slur detection."""
-    with patch("analyzer.load_dotenv"), patch.dict(
+    with patch("utils.load_env"), patch.dict(
         os.environ, {"OPENAI_API_KEY": "k"}
     ), patch("analyzer.openai.OpenAI") as MockClient:
         instance = MockClient.return_value
@@ -58,7 +58,7 @@ def test_analyze_context_invalid_json():
 
 def test_analyze_context_no_api_key():
     """If OPENAI_API_KEY is missing the function should skip API calls."""
-    with patch("analyzer.load_dotenv"), patch.dict(os.environ, {}, clear=True), patch(
+    with patch("utils.load_env"), patch.dict(os.environ, {}, clear=True), patch(
         "analyzer.openai.OpenAI"
     ) as MockClient:
         result = analyzer.analyze_context("whatever")

@@ -14,7 +14,7 @@ def test_generate_reply_calls_openai():
     }
 
     with patch("replier.openai.OpenAI") as MockClient, patch(
-        "replier.load_dotenv"
+        "utils.load_env"
     ), patch.dict(os.environ, {"OPENAI_API_KEY": "key"}):
         instance = MockClient.return_value
         chat = instance.chat.completions
@@ -30,7 +30,7 @@ def test_generate_reply_calls_openai():
 
 def test_generate_reply_no_key():
     context = {"reply_tone": "calm"}
-    with patch("replier.load_dotenv"), patch.dict(os.environ, {}, clear=True):
+    with patch("utils.load_env"), patch.dict(os.environ, {}, clear=True):
         reply = replier.generate_reply(context, "hi")
         assert "cannot respond" in reply.lower()
 

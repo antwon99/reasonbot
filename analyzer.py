@@ -13,7 +13,7 @@ import os
 from typing import Any, Dict
 import json
 
-from dotenv import load_dotenv
+from utils import load_env
 import openai
 import backoff
 
@@ -44,9 +44,8 @@ def analyze_context(tweet_text: str) -> Dict[str, Any]:
         whether the text contains a slur, and a recommended reply tone.
     """
 
-    # Pull credentials from the environment. This keeps API keys out of source
-    # code and allows developers to configure them locally via a .env file.
-    load_dotenv()
+    # Pull credentials from the environment, loading them if necessary
+    load_env()
     api_key = os.getenv("OPENAI_API_KEY")
 
     if not api_key:
