@@ -63,6 +63,8 @@ pip install -r requirements.txt
 python bot.py
 ```
 
+See [docs/environment.md](docs/environment.md) for the environment variables that must be configured.
+
 To run tests:
 
 ```bash
