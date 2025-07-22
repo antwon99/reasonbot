@@ -58,6 +58,18 @@ flake8 .
 black .
 ```
 
+## Environment Variables
+
+Copy `.env.example` to `.env` and fill in the following keys:
+
+- `OPENAI_API_KEY` – OpenAI API key
+- `TWITTER_BEARER_TOKEN` – bearer token used to read mentions
+- `TWITTER_USER_ID` – numeric ID of the account to monitor
+- `TWITTER_API_KEY` – consumer API key for posting replies
+- `TWITTER_API_SECRET` – consumer secret
+- `TWITTER_ACCESS_TOKEN` – OAuth access token
+- `TWITTER_ACCESS_SECRET` – OAuth access token secret
+
 ---
 
 ## Example Usage
